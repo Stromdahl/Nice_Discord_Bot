@@ -41,7 +41,7 @@ def score_message(guild_id):
         msg += f'\n\t{1 + i}. {k}: {v}'
     return msg
 
-def add_score(guild_id, name, amount):
+def add_score(guild_id, channel_id, name, amount):
     Guild(str(guild_id)).post(name, amount)
 
 @bot.event
@@ -50,7 +50,7 @@ async def on_message(message):
         global last_score_anouncment
         amount = get_amount_of_matches(message.content.lower())
         if amount:
-            add_score(message.guild.id, message.author.name, amount)
+            add_score(message.guild.id, message.channel.id, message.author.name, amount)
             if(time.time() - last_score_anouncment > leaderboard_anouncement_cooldown_seconds):
                 await message.channel.send(score_message(message.guild.id))
                 last_score_anouncment = time.time()
