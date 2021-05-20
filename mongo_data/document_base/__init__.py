@@ -3,7 +3,7 @@ from db_settings import *
 from datetime import datetime
 
 client = MongoClient(f'mongodb://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}')
-db = client["discord_nice_bot_test"]
+db = client["discord_nice_bot"]
 
 
 class Document:
