@@ -1,66 +1,86 @@
+
+from mongo_data.Models.guilds import Guild
 from secrets.secrets import TOKEN
-from discord.ext import commands
 import discord
+from discord.ext import commands
 import re
 import time
 
-class MyClient(discord.Client):
-    nice_count = dict()
-    last_score_anouncment = time.time()
 
-    def score_message(self):
-        nice_count_view = [ (v,k) for k,v in self.nice_count.items() ]
-        nice_count_view.sort(reverse=True)
+word_list = ["nice", "nojs", "noice"]
+description = f'''A Nice bot
+you get score by writing one of the following words:"{" ".join(word_list)}"'''
 
-        msg = 'NICE LEADERBOARD'
-        for i, count in enumerate(nice_count_view):
-            v, k = count
-            msg += f'\n\t{1 + i}. {k}: {v}'
-        return msg
-        
 
-    async def on_ready(self):
-        print('Logged in as')
-        print(self.user.name)
-        print(self.user.id)
-        print('------')
+word_list = ["nice", "nojs", "noice"]
 
-    async def on_message(self, message):
-        # we do not want the bot to reply to itself
-        if message.author.id == self.user.id:
+leaderboard_anouncement_cooldown_seconds = 3600
+
+nice_count = dict()
+last_score_anouncment = time.time()-leaderboard_anouncement_cooldown_seconds
+
+bot = commands.Bot(command_prefix='!nice ', description=description, activity=discord.Game("!nice help"))
+
+def create_regex_pattern(word_list):
+    return f'({"|".join(word_list)})'
+
+def get_amount_of_matches(message):
+    pattern = create_regex_pattern(word_list)
+    return len(re.findall(pattern, message))
+
+def get_score(guild_id):
+    total = Guild(str(guild_id)).get_total().items()
+    nice_count_view = [ (v,k) for k,v in total]
+    nice_count_view.sort(reverse=True)
+    return nice_count_view
+
+def score_message(guild_id):
+    msg = 'NICE LEADERBOARD'
+    for i, count in enumerate(get_score(guild_id)):
+        v, k = count
+        msg += f'\n\t{1 + i}. {k}: {v}'
+    return msg
+
+def add_score(guild_id, name, amount):
+    Guild(str(guild_id)).post(name, amount)
+
+@bot.event
+async def on_message(message):
+    if message.author.id != bot.user.id and not message.content.startswith("!nice"):
+        global last_score_anouncment
+        amount = get_amount_of_matches(message.content.lower())
+        if amount:
+            add_score(message.guild.id, message.author.name, amount)
+            if(time.time() - last_score_anouncment > leaderboard_anouncement_cooldown_seconds):
+                await message.channel.send(score_message(message.guild.id))
+                last_score_anouncment = time.time()
             return
+    await bot.process_commands(message)
 
-        content = message.content.lower()
+@bot.event
+async def on_ready():
+    print('Logged in as')
+    print(bot.user.name)
+    print(bot.user.id)
+    print('------')
+    
 
-        if content.startswith('!nice'):
-            content = content.split(" ")
-            if len(content) == 1:
-                await message.channel.send('Write "!nice help" to get help')
-                return
+@bot.command(description="Get the leaderboard")
+async def score(ctx):
+    await ctx.send(score_message(ctx.guild.id))
 
-            if content[1] == "help":
-                await message.channel.send(
-                    '''You collect your daily NicePoints by typing "nice" or "nojs
-type "!nice score" to get the current score for everyone
-                    ''')
-                return
+@bot.command()
+async def wordlist(ctx):
+    ctx.send(f"Words im looking for: {' '.join(word_list)}")
 
-            if content[1] == "score":
-                await message.channel.send()
-                return
-
-        content = re.findall("(nice|nojs)", content)
-        if content:
-            author = message.author.name
-            try:
-                self.nice_count[author] += len(content)
-            except KeyError:
-                self.nice_count[author] = len(content)
-            if(time.time() - self.last_score_anouncment > 1):
-                await message.channel.send(self.score_message())
-                self.last_score_anouncment = time.time()
-            return
+@bot.command(description="Just for testing, don't use this :)")
+async def test(ctx, ):
+    print(nice_count)
 
 
-client = MyClient()
-client.run(TOKEN)
+def main():
+    bot.run(TOKEN)
+
+
+if __name__ == "__main__":
+    main()
