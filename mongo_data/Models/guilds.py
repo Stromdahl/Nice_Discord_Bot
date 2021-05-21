@@ -8,8 +8,21 @@ class Guild(Document):
     def __init__(self, collection) -> None:
         super().__init__(collection)
 
-    def post(self,channel_id, name, amount):
-        self.save(channel_id=channel_id, name=name, amount=amount, timestamp=datetime.now())
+    def post(self, message_id, channel_id, name, amount):
+        data = {
+            "_id": message_id,
+            "channel_id": channel_id,
+            "name": name,
+            "amount": amount,
+            "timestamp": datetime.now()
+        }
+        super().post(**data)
+
+    def delete(self, message_id):
+        super().delete(message_id)
+
+    def update(self, _id, amount):
+        super().update(_id=_id, amount=amount)
 
     def get_user_amount(self, user):
         return [i["amount"] for i in self.collection.find({"name": user}, {"amount":1})]

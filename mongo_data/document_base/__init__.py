@@ -13,20 +13,22 @@ class Document:
     def get_date():
         return datetime.now().strftime("%Y-%m-%d")
 
-    def save(self, **kwargs):
+    def post(self, **kwargs):
+        kwargs["_id"] = str(kwargs["_id"])
         return self.collection.insert_one(kwargs).inserted_id
 
-    def update(self):
-        return self.collection.update_one(self.__dict__)
+    def delete(self, _id):
+        return self.collection.delete_one({"_id":str(_id)})
+
+    def update(self, _id, **kwargs):
+        return self.collection.update_one({"_id":str(_id)}, {"$set": kwargs})
 
     @classmethod
     def get_all(cls):
         return [cls(**item) for item in cls.collection.find({})]
 
     def get_by_date(self, start, end):
-        print(start)
-        print(end)
-        pass
+        return self.collection.find({'timestamp': {'$lt': end, '$gte': start}})
 
     def find(self, **kwargs):
         return [self(**item) for item in self.collection.find(kwargs)]
