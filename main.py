@@ -6,12 +6,10 @@ import re
 import time
 
 
-word_list = ["nice", "nojs", "noice"]
-description = f'''A Nice bot
+word_list = ["nice", "nojs", "noice", "najs"]
+description = f'''A Nice bot by Stroid
 you get score by writing one of the following words:"{" ".join(word_list)}"'''
 
-
-word_list = ["nice", "nojs", "noice"]
 
 leaderboard_anouncement_cooldown_seconds = 3600
 
@@ -72,9 +70,9 @@ async def score(ctx):
 async def wordlist(ctx):
     await ctx.send(f"Words im looking for: {' '.join(word_list)}")
 
-@bot.command(description="Just for testing, don't use this :)")
-async def test(ctx, ):
-    print(nice_count)
+@bot.command(brief='Dont use plz, i give cookies', description='Dont use plz')
+async def test(ctx):
+    print("test")
 
 
 def main():
