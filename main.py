@@ -1,4 +1,4 @@
-from pymongo import message
+from mongo_data.Models.message import Message
 from mongo_data.Models.guilds import Guild
 from secrets.secrets import TOKEN
 import discord
@@ -39,39 +39,18 @@ def score_message(guild_id):
         msg += f'\n\t{1 + i}. {k}: {v}'
     return msg
 
-def add_score(guild_id, message_id, channel_id, name, amount):
-    Guild(str(guild_id)).post(message_id, channel_id, name, amount)
-
-def delete_score(message):
-    Guild(str(message.guild.id)).delete(message.id)
-
-def update_score(message, amount):
-    Guild(str(message.guild.id)).update(message.id, amount)
-
 @bot.event
 async def on_message(message):
-    if message.author.id != bot.user.id and not message.content.startswith("!nice"):
-        global last_score_anouncment
-        amount = get_amount_of_matches(message.content.lower())
-        if amount:
-            add_score(message.guild.id, message.id, message.channel.id, message.author.name, amount)
-            if(time.time() - last_score_anouncment > leaderboard_anouncement_cooldown_seconds):
-                await message.channel.send(score_message(message.guild.id))
-                last_score_anouncment = time.time()
-            return
+    Message(message).post()
     await bot.process_commands(message)
 
 @bot.event
 async def on_message_delete(message):
-    delete_score(message)
+    Message(message).delete()
 
 @bot.event
 async def on_message_edit(before, after):
-    amount = get_amount_of_matches(after.content.lower())
-    if amount:
-        update_score(after, amount)
-        return
-    delete_score(after)
+    Message(after).update()
 
 @bot.event
 async def on_ready():
@@ -95,7 +74,6 @@ async def test(ctx):
 
 def main():
     bot.run(TOKEN)
-
 
 if __name__ == "__main__":
     main()
