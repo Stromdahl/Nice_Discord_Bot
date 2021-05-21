@@ -1,4 +1,3 @@
-
 from mongo_data.Models.guilds import Guild
 from secrets.secrets import TOKEN
 import discord
@@ -42,7 +41,7 @@ def score_message(guild_id):
     return msg
 
 def add_score(guild_id, channel_id, name, amount):
-    Guild(str(guild_id)).post(name, amount)
+    Guild(str(guild_id)).post(channel_id, name, amount)
 
 @bot.event
 async def on_message(message):
@@ -71,7 +70,7 @@ async def score(ctx):
 
 @bot.command()
 async def wordlist(ctx):
-    ctx.send(f"Words im looking for: {' '.join(word_list)}")
+    await ctx.send(f"Words im looking for: {' '.join(word_list)}")
 
 @bot.command(description="Just for testing, don't use this :)")
 async def test(ctx, ):

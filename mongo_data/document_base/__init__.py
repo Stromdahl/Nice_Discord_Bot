@@ -23,5 +23,10 @@ class Document:
     def get_all(cls):
         return [cls(**item) for item in cls.collection.find({})]
 
+    def get_by_date(self, start, end):
+        print(start)
+        print(end)
+        pass
+
     def find(self, **kwargs):
         return [self(**item) for item in self.collection.find(kwargs)]
