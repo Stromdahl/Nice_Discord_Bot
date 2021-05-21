@@ -7,21 +7,23 @@ db = client["discord_nice_bot"]
 
 
 class Document:
-    def __init__(self, collection) -> None:
-        self.collection = db[collection]
+    collection = None
 
     def get_date():
         return datetime.now().strftime("%Y-%m-%d")
 
-    def post(self, **kwargs):
-        kwargs["_id"] = str(kwargs["_id"])
-        return self.collection.insert_one(kwargs).inserted_id
+    def post(self):
+        data = self.__dict__.copy()
+        data["collection"] = data["collection"].name
+        return self.collection.insert_one(data).inserted_id
 
-    def delete(self, _id):
-        return self.collection.delete_one({"_id":str(_id)})
+    def delete(self):
+        return self.collection.delete_one({"_id": self._id})
 
-    def update(self, _id, **kwargs):
-        return self.collection.update_one({"_id":str(_id)}, {"$set": kwargs})
+    def update(self):
+        data = self.__dict__.copy()
+        data["collection"] = data["collection"].name
+        return self.collection.update_one({"_id":self._id}, {"$set": data})
 
     @classmethod
     def get_all(cls):

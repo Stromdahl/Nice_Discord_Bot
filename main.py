@@ -1,4 +1,5 @@
-from pymongo import message
+from mongo_data.Models.score import Score
+from mongo_data.Models.message import Message
 from mongo_data.Models.guilds import Guild
 from secrets.secrets import TOKEN
 import discord
@@ -17,61 +18,35 @@ leaderboard_anouncement_cooldown_seconds = 3600
 nice_count = dict()
 last_score_anouncment = time.time()-leaderboard_anouncement_cooldown_seconds
 
-bot = commands.Bot(command_prefix='!nice ', description=description, activity=discord.Game("!nice help"))
+bot = commands.Bot(command_prefix='!nice ',
+                   description=description, activity=discord.Game("!nice help"))
 
-def create_regex_pattern(word_list):
-    return f'({"|".join(word_list)})'
-
-def get_amount_of_matches(message):
-    pattern = create_regex_pattern(word_list)
-    return len(re.findall(pattern, message))
-
-def get_score(guild_id):
-    total = Guild(str(guild_id)).get_total().items()
-    nice_count_view = [ (v,k) for k,v in total]
-    nice_count_view.sort(reverse=True)
-    return nice_count_view
 
 def score_message(guild_id):
     msg = 'NICE LEADERBOARD'
-    for i, count in enumerate(get_score(guild_id)):
+    for i, count in enumerate(Score(guild_id).get()):
         v, k = count
         msg += f'\n\t{1 + i}. {k}: {v}'
     return msg
 
-def add_score(guild_id, message_id, channel_id, name, amount):
-    Guild(str(guild_id)).post(message_id, channel_id, name, amount)
-
-def delete_score(message):
-    Guild(str(message.guild.id)).delete(message.id)
-
-def update_score(message, amount):
-    Guild(str(message.guild.id)).update(message.id, amount)
 
 @bot.event
 async def on_message(message):
     if message.author.id != bot.user.id and not message.content.startswith("!nice"):
-        global last_score_anouncment
-        amount = get_amount_of_matches(message.content.lower())
-        if amount:
-            add_score(message.guild.id, message.id, message.channel.id, message.author.name, amount)
-            if(time.time() - last_score_anouncment > leaderboard_anouncement_cooldown_seconds):
-                await message.channel.send(score_message(message.guild.id))
-                last_score_anouncment = time.time()
-            return
+        Message(message).post()
+        return
     await bot.process_commands(message)
+
 
 @bot.event
 async def on_message_delete(message):
-    delete_score(message)
+    Message(message).delete()
+
 
 @bot.event
 async def on_message_edit(before, after):
-    amount = get_amount_of_matches(after.content.lower())
-    if amount:
-        update_score(after, amount)
-        return
-    delete_score(after)
+    Message(after).update()
+
 
 @bot.event
 async def on_ready():
@@ -79,14 +54,17 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    
+
+
 @bot.command(description="Get the leaderboard")
 async def score(ctx):
     await ctx.send(score_message(ctx.guild.id))
 
+
 @bot.command()
 async def wordlist(ctx):
     await ctx.send(f"Words im looking for: {' '.join(word_list)}")
+
 
 @bot.command(brief='Dont use plz, i give cookies', description='This is only a testing function that the one and only master dev stroid that should use :)')
 async def test(ctx):
