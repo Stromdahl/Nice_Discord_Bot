@@ -1,10 +1,9 @@
+from datetime import datetime, timedelta
 from mongo_data.Models.score import Score
 from mongo_data.Models.message import Message
-from mongo_data.Models.guilds import Guild
 from secrets.secrets import TOKEN
 import discord
 from discord.ext import commands
-import re
 import time
 
 
@@ -22,9 +21,26 @@ bot = commands.Bot(command_prefix='!nice ',
                    description=description, activity=discord.Game("!nice help"))
 
 
-def score_message(guild_id):
-    msg = 'NICE LEADERBOARD'
-    for i, count in enumerate(Score(guild_id).get()):
+def daily_scores(score):
+    date = datetime.now()
+    start = date.replace(hour=0, minute=0)
+    end = date.replace(hour=23, minute=59)
+    return score.get_by_date(start, end)
+
+
+def weekly_scores(score):
+    date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    start = date - timedelta(days=date.weekday())
+    end = start + timedelta(days=6)
+    return score.get_by_date(start, end)
+
+
+def all_scores(score):
+    return score.get()
+
+
+def score_message(msg, scores):
+    for i, count in enumerate(scores):
         v, k = count
         msg += f'\n\t{1 + i}. {k}: {v}'
     return msg
@@ -56,19 +72,29 @@ async def on_ready():
     print('------')
 
 
-@bot.command(description="Get the leaderboard")
+@bot.command(brief="Daz, Leaderboard")
 async def score(ctx):
-    await ctx.send(score_message(ctx.guild.id))
+    scores = all_scores(Score(ctx.guild.id))
+    await ctx.send(score_message("NICE LEADERBOARD", scores))
 
+@bot.command(brief="Daily scoreboard")
+async def daily(ctx):
+    scores = daily_scores(Score(ctx.guild.id))
+    await ctx.send(score_message("DAILY LEADERBOARD", scores))
 
-@bot.command()
+@bot.command(brief="Weekly scoreboard")
+async def weekly(ctx):
+    scores = weekly_scores(Score(ctx.guild.id))
+    await ctx.send(score_message("WEEKLY LEADERBOARD", scores))
+
+@bot.command(brief="The list of words")
 async def wordlist(ctx):
     await ctx.send(f"Words im looking for: {' '.join(word_list)}")
 
 
 @bot.command(brief='Dont use plz, i give cookies', description='This is only a testing function that the one and only master dev stroid that should use :)')
 async def test(ctx):
-    print("test")
+    ctx.send("Dont, plz. Halp")
 
 
 def main():
