@@ -1,8 +1,7 @@
+from config import Config
 from datetime import datetime
 from mongo_data.document_base import Document, db
 import re
-
-word_list = ["nice", "nojs", "noice", "najs"]
 
 class Message(Document):
     def __init__(self, message) -> None:
@@ -14,6 +13,7 @@ class Message(Document):
         self.timestamp = datetime.now()
 
     def get_number_of_matches(self, message):
+        word_list = Config("config_files/config.json").WORD_LIST
         return len(re.findall(f'({"|".join(word_list)})', message))
 
     def post(self):

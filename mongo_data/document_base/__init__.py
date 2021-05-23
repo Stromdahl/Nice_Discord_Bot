@@ -1,10 +1,11 @@
 from pymongo import MongoClient
-from db_settings import *
 from datetime import datetime
+from config import Config
 
-client = MongoClient(f'mongodb://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}')
-db = client["discord_nice_bot"]
+secrets = Config("config_files/secrets.json")
 
+client = MongoClient(f'mongodb://{secrets.DB_USER}:{secrets.DB_PASSWORD}@{secrets.DB_HOST}:{secrets.DB_PORT}')
+db = client[secrets.DB_NAME]
 
 class Document:
     collection = None
