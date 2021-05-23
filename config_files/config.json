@@ -1,3 +1,5 @@
 {
-    "WORD_LIST": ["nice", "nojs", "noice", "najs"]
+    "WORD_LIST": ["nice", "nojs", "noice", "najs"],
+    "LEADERBOARD_ANOUNCMENT_PROB": 0.9,
+    "LEADERBOARD_ANOUNCMENT_TITLE": "NICE LEADERBOARD\n🔥🔥SEASON 2🔥🔥"
 }

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import discord
 
 def daily_scores(score):
     date = datetime.now()
@@ -18,8 +19,9 @@ def all_scores(score):
     return score.get()
 
 
-def score_message(msg, scores):
+def score_message(title, scores):
+    msg = ""
     for i, count in enumerate(scores):
         v, k = count
         msg += f'\n\t{1 + i}. {k}: {v}'
-    return msg
+    return discord.Embed(title=title, description=msg, color=discord.Color.red())
