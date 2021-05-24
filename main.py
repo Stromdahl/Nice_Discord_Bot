@@ -46,19 +46,22 @@ async def on_ready():
 async def score(ctx):
     title = Config("config_files/config.json").LEADERBOARD_ANOUNCMENT_TITLE
     scores = all_scores(Score(ctx.guild.id))
-    await ctx.send(embed = score_message(title, scores))
+    footer = 'You can also do "!nice daily" and "!nice weekly"'
+    await ctx.send(embed = score_message(title, scores, footer=footer))
 
 
 @bot.command(brief="Daily scoreboard")
 async def daily(ctx):
     scores = daily_scores(Score(ctx.guild.id))
-    await ctx.send(embed = score_message("DAILY LEADERBOARD", scores))
+    footer = 'You can also do "!nice score" and "!nice weekly"'
+    await ctx.send(embed = score_message("DAILY LEADERBOARD", scores, footer=footer))
 
 
 @bot.command(brief="Weekly scoreboard")
 async def weekly(ctx):
     scores = weekly_scores(Score(ctx.guild.id))
-    await ctx.send(embed = score_message("WEEKLY LEADERBOARD", scores))
+    footer = 'You can also do "!nice score" and "!nice daily"'
+    await ctx.send(embed = score_message("WEEKLY LEADERBOARD", scores, footer=footer))
 
 
 @bot.command(brief="The list of words")
