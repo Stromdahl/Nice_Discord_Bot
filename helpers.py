@@ -19,9 +19,12 @@ def all_scores(score):
     return score.get()
 
 
-def score_message(title, scores):
+def score_message(title, scores, footer=None):
     msg = ""
     for i, count in enumerate(scores):
         v, k = count
         msg += f'\n\t{1 + i}. {k}: {v}'
-    return discord.Embed(title=title, description=msg, color=discord.Color.red())
+    embed = discord.Embed(title=title, description=msg, color=discord.Color.red())
+    if footer:
+        embed.set_footer(text=footer)
+    return embed
