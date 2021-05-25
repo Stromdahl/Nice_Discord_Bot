@@ -67,8 +67,11 @@ async def weekly(ctx):
 
 @bot.command(brief="The list of words")
 async def wordlist(ctx):
-    word_list = ' '.join(Config("config_files/config.json").WORD_LIST)
-    embed = discord.Embed(title="Word list", description=word_list, color=discord.Color.blue())
+    word_list = Config("config_files/config.json").WORD_LIST
+    result = ""
+    for word,score in word_list.items():
+        result += f"{word} - {score}\n"
+    embed = discord.Embed(title="Word list", description=result, color=discord.Color.blue())
     await ctx.send(embed=embed)
 
 
