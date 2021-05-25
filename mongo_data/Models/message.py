@@ -1,6 +1,7 @@
 from config import Config
 from datetime import datetime
 from mongo_data.document_base import Document, db
+from mongo_data.Models.message_helpers import get_matches, get_score
 import re
 
 class Message(Document):
@@ -9,12 +10,13 @@ class Message(Document):
         self._id = str(message.id)
         self.channel_id = str(message.channel.id)
         self.name = message.author.name
-        self.matches = self.get_number_of_matches(message.content.lower())
-        self.timestamp = datetime.now()
 
-    def get_number_of_matches(self, message):
         word_list = Config("config_files/config.json").WORD_LIST
-        return len(re.findall(f'({"|".join(word_list)})', message))
+        words = get_matches(message.content.lower(), word_list.keys())
+        score = get_score(words, word_list)
+        self.matches = score
+        
+        self.timestamp = datetime.now()
 
     def post(self):
         if self.matches:

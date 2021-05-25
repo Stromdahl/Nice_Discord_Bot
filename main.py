@@ -15,8 +15,9 @@ bot = commands.Bot(command_prefix=commant_prefix, description=description, activ
 @bot.event
 async def on_message(message):
     if message.author.id != bot.user.id and not message.content.startswith("!nice"):
-        Message(message).post()
-        if random() < Config("config_files/config.json").LEADERBOARD_ANOUNCMENT_PROB:
+        msg = Message(message)
+        msg.post()
+        if msg.matches > 0 and random() < Config("config_files/config.json").LEADERBOARD_ANOUNCMENT_PROB:
             title = Config("config_files/config.json").LEADERBOARD_ANOUNCMENT_TITLE
             scores = all_scores(Score(message.guild.id))
             await message.channel.send(embed = score_message(title, scores))

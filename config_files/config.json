@@ -1,5 +1,5 @@
 {
-    "WORD_LIST": ["nice", "nojs", "noice", "najs"],
-    "LEADERBOARD_ANOUNCMENT_PROB": 0.05,
-    "LEADERBOARD_ANOUNCMENT_TITLE": "NICE LEADERBOARD\n🔥🔥SEASON 2🔥🔥"
+  "WORD_LIST": { "nice": 1, "nojs": 1, "noice": 1, "najs": 1, ":nice:":10},
+  "LEADERBOARD_ANOUNCMENT_PROB": 0.05,
+  "LEADERBOARD_ANOUNCMENT_TITLE": "NICE LEADERBOARD\n🔥🔥SEASON 2🔥🔥"
 }
